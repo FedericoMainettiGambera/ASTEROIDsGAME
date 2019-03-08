@@ -1,0 +1,291 @@
+function survival2() {
+    if(upgrading == true){
+
+        //space stars cycle 
+        for(var i = 0; i<space.length; i++){
+            //normal display of stars
+            space[i].render();
+            space[i].update();
+        }
+
+
+
+
+        //number of coins
+        push();
+        fill(255, 255, 0);
+        textFont('monospace', width/40);
+        textAlign(CENTER, CENTER);
+        text('ENERGY: ' + ship.coins, width/2, height/8);
+        pop();
+
+        if(select == "moreMoney"){
+            //number of coins
+            push();
+            fill(255, 0, 0);
+            textFont('monospace', width/40);
+            textAlign(CENTER, CENTER);
+            text('more energy needed', width/2, height*2/8);
+            pop();
+        }
+
+
+
+
+        //upgrade shield
+        push();
+        if(select == "shield"){
+            fill(255, 255, 0);
+            textFont('monospace', width/40);
+            textAlign(CENTER, CENTER);
+            if(ship.shieldLVL != 5){
+                text('LVL ' + (ship.shieldLVL) + ' ENERGY COST = ' + (200*ship.shieldLVL) , width/4, height/4+height/8 - width *2/40);
+            }
+            textFont('monospace', width/30);
+        }
+        else {
+            textFont('monospace', width/40);
+        }
+        fill(255);
+        textAlign(CENTER, CENTER);
+        text('UPGRADE SHIELD', width/4, height/4+height/8);
+        fill(0,255,255);
+        textFont('monospace', width/70);
+        if(ship.shieldLVL >= 5){
+            textFont('monospace', width/50);
+            text('MAXED - LVL 5', width/4, height/4+height/8 + width*2/40);
+        }
+        else{
+            text('The cool down time for your shield will be reduced by', width/4, height/4+height/8 + width*2/40);
+            text('0,5 sec and the shield "on" time will be increased by 1 sec', width/4, height/4+height/8 + width*3/40);
+        }
+        pop();
+
+
+
+
+
+        //upgrade movement
+        push();
+        if(select == "movement"){
+            fill(255, 255, 0);
+            textFont('monospace', width/40);
+            textAlign(CENTER, CENTER);
+            text('ENERGY COST = ' + (500*ship.movementLVL) , width/4, height*2/4+height*2/8 - width *2/40);
+            textFont('monospace', width/30);
+        }
+        else {
+            textFont('monospace', width/40);
+        }
+        fill(255);
+        textAlign(CENTER, CENTER);
+        text('UPGRADE ANTI-GRAVITY BLOCKER', width/4, height*2/4+height*2/8);
+        textFont('monospace', width/70);
+        fill(255,153, 0);
+        if(ship.movementLVL >= 6){
+            textFont('monospace', width/50);
+            text('MAXED - LVL 6', width/4, height*2/4+height*2/8+ width*2/40);
+        }
+        else{
+            text('slow down nearby asteroids', width/4, height*2/4+height*2/8+ width*2/40);
+        }
+        pop();
+
+
+
+
+
+        //upgrade gun
+        push();
+        if(select == "gun"){
+            fill(255, 255, 0);
+            textFont('monospace', width/40);
+            textAlign(CENTER, CENTER);
+            text('ENERGY COST = 1500' , width*3/4, height/4+height/8 - width *2/40);
+            textFont('monospace', width/30);
+        }
+        else {
+            textFont('monospace', width/40);
+        }
+        fill(255);
+        textAlign(CENTER, CENTER);
+        text('UPGRADE GUN', width*3/4, height/4+height/8);
+        textFont('monospace', width/70);
+        fill(255,0,0);
+        if(ship.gunLVL > 1) {
+            textFont('monospace', width/50);
+            text('MAXED', width*3/4, height/4+height/8 + width*2/40);
+        }
+        else{
+            text('new bullets that pass trought asteroids', width*3/4, height/4+height/8 + width*2/40);
+        }
+        pop();
+
+
+
+
+
+        //extra life
+        push();
+        if(select == "life"){
+            fill(255, 255, 0);
+            textFont('monospace', width/40);
+            textAlign(CENTER, CENTER);
+            text('LVL ' + (ship.lifeLVL) + ' ENERGY COST = ' + (30*ship.lifeLVL) , width*3/4, height*2/4+height*2/8 - width *2/40);
+            textFont('monospace', width/30);
+        }
+        else {
+            textFont('monospace', width/40);
+        }
+        fill(255);
+        textAlign(CENTER, CENTER);
+        text('EARN EXTRA LIFE', width*3/4, height*2/4+height*2/8);
+        textFont('monospace', width/70);
+        fill(0,255,0);
+        text('increase your starting number of lifes by one', width*3/4, height*2/4+height*2/8+ width*2/40);
+        pop();
+
+        push();
+        if(select == "next"){
+            fill(255,255,0);
+            textFont('monospace', width/30);
+        }
+        else {
+            fill(255);
+            textFont('monospace', width/40);
+        }
+        textAlign(CENTER, CENTER);
+        text('NEXT', width*11/12, height*11/12);
+        pop();
+    }
+
+
+    else{
+        runSurvival2();
+    }
+}
+
+function muoseOverSurvival2(){
+    if (mouseX > width *10/12 && mouseY > height * 10/12) {
+        select = "next";
+    }
+    else if(mouseX > width/2){
+        if(mouseY > height/2 + height/8){
+            select = "life";
+        }
+        else{
+            select = "gun";
+        }
+    }
+    else {
+        if(mouseY > height/2 + height/8){
+            select = "movement";
+        }
+        else{
+            select = "shield";
+        }
+    }
+}
+
+function muosePressSurvival2(){
+    if (mouseX > width *10/12 && mouseY > height * 10/12) {
+        upgrading = false;
+    }
+    else if(mouseX > width/2){
+
+        if(mouseY > height/2 + height/8){//life upgrade
+            if(ship.coins > 30*ship.lifeLVL){
+                ship.coins -= 30*ship.lifeLVL;
+                ship.startingLifes ++;
+                ship.lifeLVL++;
+            }
+            else{
+                select = "moreMoney";
+            }
+        }
+
+
+        else{//gun upgrade
+            if((ship.coins > 1500)&&(ship.gunLVL==1)){
+                ship.coins -= 1500;
+                ship.gunLVL++;
+            }
+            else{
+                if(ship.gunLVL ==1){
+                    select = "moreMoney";
+                }
+            }
+        }
+    }
+    else {
+
+        if(mouseY > height/2 + height/8){ //movement upgrade
+            if((ship.coins > 500*ship.movementLVL)&&(ship.movementLVL <= 5)){
+                ship.coins -= 500*ship.movementLVL;
+
+                ship.movementLVL++;
+            }
+            else{
+                if(ship.movementLVL <= 5){
+                    select = "moreMoney";
+                }
+            }
+        }
+
+
+        else{ // shield upgrade
+            if((ship.coins > (200*ship.shieldLVL)) && (ship.shieldLVL < 5)){
+                ship.coins -= (200*ship.shieldLVL);
+                ship.shieldTime += 1000;
+                ship.shieldCooldownTime -= 500;
+                ship.shieldLVL++
+            }
+            else{
+                if ( ship.shieldLVL < 5){
+                    select = "moreMoney";
+                }
+            }
+        }
+    }
+}
+
+
+function runSurvival2(){
+    //resetting everything
+    if (restart == true){
+        asteroids.splice(0, asteroids.length); //no asteroids
+        ship.currentNumberOfAsteroids = 0;
+        crushedAsteroids = [];
+        
+        boss.totalLifes = (level+1)* 100; //il level ha un +1 perchè la riga che aggiorna level++ è fatta più sotto
+        boss.life = boss.totalLifes;
+        boss.dead = false;
+        boss.position.x = width/2;
+        boss.position.y = -2*height;
+        boss.velocity = createVector(0,2);
+        boss.accelleration = createVector(0,0);
+        boss.coming = ship.asteroidsHitted + 3000*(level+1);
+        boss.killRoundDone = false;
+        boss.r = dist(boss.position.x, boss.position.y, ship.position.x, ship.position.y)/7;
+        
+        bullets.splice(0, bullets.length); //no bullets
+        
+        moneys.splice(0, moneys.length); //no moneys around
+        
+        score += 1000; //plus di mille allo score
+        
+        //astronave
+        ship.position.x = width/2;
+        ship.lifes = ship.startingLifes;
+        
+        BooleanPlaying = true;
+        gameLevel = "Survival2"; //Classic or Survival
+        upgrading = false;
+        select = " ";
+        restart = false;
+        BooleanDead = false;
+    }
+
+    level ++;
+    gameLevel = "Survival1"
+}

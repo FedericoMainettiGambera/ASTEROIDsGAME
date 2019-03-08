@@ -1,0 +1,104 @@
+var stats = false;
+function survivalDead(){
+    if(!stats){
+        if(score < ship.asteroidsHitted){
+            score += 41;
+            push();
+            fill(255);
+            textFont('monospace', width/30);
+            textAlign(CENTER, CENTER)
+            text('SCORE: ' + score, width/2,height/2);
+            pop();
+        }
+        else{
+            score = ship.asteroidsHitted;
+            push();
+            fill(255);
+            textFont('monospace', width/30);
+            textAlign(CENTER, CENTER)
+            text('SCORE: ' + score, width/2,height/2);
+            pop();
+            push();
+            fill(255);
+            textFont('monospace', width/100);
+            textAlign(CENTER, CENTER)
+            text('press ENTER to continue...', width/2, 9*height/16);
+            pop();
+        }
+    }
+    if(stats){
+        //display player stats
+        push();
+            fill(255);
+            textFont('monospace', width/30);
+            textAlign(CENTER, CENTER);
+
+            text('STATS', width/2,height*1/9-height/20);
+
+            textFont('monospace', width/50);
+            textAlign(LEFT);
+
+            text('Level:................................................................  ' + level, width*2/30,height*2/9-height/20);
+
+            score = ship.asteroidsHitted;
+            text('score:................................................................  ' + score, width*2/30,height*3/9-height/20);
+
+            var energyLeft = 0;
+            if(ship.coins > 0){
+                energyLeft = (floor(ship.coins*100)/100);
+            }
+            else{
+                energyLeft = 0;
+            }
+            text('Energy left:..........................................................  ' + energyLeft, width*2/30,height*4/9-height/20);
+
+            var totalenergy = ship.coins;
+            for(var i = 1 ; i < ship.lifeLVL; i++){
+                totalenergy += 30*i;
+            }
+            for(var i = 1 ; i < ship.shieldLVL; i++){
+                totalenergy += 200*i;
+            }
+            for(var i = 1 ; i < ship.movementLVL; i++){
+                totalenergy += 500*i;
+            }
+            if(ship.gunLVL >1){
+                totalenergy += 1500;
+            }
+            totalenergy += ship.bulletsShooted;
+            text('Total energy gained:  ................................................  ' + totalenergy, width*2/30,height*5/9-height/20);
+
+            text('Bullets shooted:  ....................................................  ' + ship.bulletsShooted, width*2/30,height*6/9-height/20);
+
+            text('Number of hits:  .....................................................  ' + ship.bulletsHits, width*2/30,height*7/9-height/20);
+
+            text('Framerate:  ..........................................................  ' + floor(framerateavg), width*2/30,height*8/9-height/20);
+
+            textFont('monospace', width/100);
+            textAlign(CENTER, CENTER)
+            text('press ENTER to continue...', width/2, height*17/18);
+            
+        pop();
+        
+    }
+}
+
+function keyDeadSurvival(){
+    if(score < ship.asteroidsHitted){
+        if (keyCode == 13){ // 'ENTER'
+            score = ship.asteroidsHitted;
+        }   
+    }
+    else{
+        if (keyCode == 13){ // 'ENTER'
+            if(!stats){
+                stats= true;
+            }
+            else{
+                BooleanDead = false;
+                BooleanPlaying = false;
+                BooleanGameMenu = true; 
+            }
+        }
+    }
+}

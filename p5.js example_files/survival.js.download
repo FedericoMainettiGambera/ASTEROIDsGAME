@@ -1,0 +1,272 @@
+function survival() {
+
+
+    //space stars cycle 
+    for(var i = 0; i<space.length; i++){
+
+        //normal display of stars
+        space[i].render();
+        space[i].update();
+
+    }
+
+
+    //to create the first asteroid and start the survival mode
+    if((ship.currentNumberOfAsteroids == 0)&&(!boss.dead)){
+        asteroids.push(new Asteroid());
+        ship.currentNumberOfAsteroids ++;
+    }
+
+
+    //asteroids cycle
+    for(var i = 0; i<asteroids.length; i++){
+
+        //normal display of asteroids
+        asteroids[i].render();
+        asteroids[i].update();
+
+        if (ship.movementLVL > 1){
+            ship.slowAsteroid(asteroids[i]);
+        }
+
+        //checks if the ship hits an asteroid
+        //asteroid hitted: make it red, spown a new asteroid, life-- (if teh ship dies, make the game end)
+        //asteroid not hitted: nothing
+        if(ship.hits(asteroids[i])){
+            if(ship.lifes>0){ //if you have one or more life (still alive)
+                
+                ship.lifes--;
+                var newCrushedAsteroid = new CrushedAsteroid(asteroids[i]);
+                asteroids.splice(i,1);
+                ship.currentNumberOfAsteroids--;
+                crushedAsteroids.push(newCrushedAsteroid);
+                asteroids.push(new Asteroid());
+                ship.currentNumberOfAsteroids ++;
+                if(ship.lifes==0){ //if the ship is dead
+                    BooleanDead = true;
+                    return;
+                }
+                //for problem caused by the for-cycle and the fact that we use .splice
+                break;
+            }
+            if(ship.lifes==0){ //if the ship is dead
+                BooleanDead = true;
+                return;
+            }
+        }
+
+        if(boss.hits(asteroids[i])){
+            push();
+            asteroids[i].position.x = boss.position.x;
+            asteroids[i].velocity.x = 0;
+            asteroids[i].velocity.y = 10;
+            pop();
+        }
+    }
+
+
+    //crushed asteroids cycle
+    for(var i = 0; i<crushedAsteroids.length; i++){
+
+        //normal display of crushed asteroids (red ones)
+        crushedAsteroids[i].render();
+        crushedAsteroids[i].update();
+
+    }
+
+
+
+
+    //bullets cycle
+    for(var i = bullets.length-1; i>= 0; i--){
+
+        //normal display of bullets
+        bullets[i].render();
+        bullets[i].update();
+
+        //eliminates offScreen bullets
+        if(bullets[i].offScreen()){
+            bullets.splice(i,1);
+        }
+
+        //checks if a bullet hits an asteroid
+        else{
+            for(var j = asteroids.length-1; j>=0; j--){ //backward cycle for the problem of .splice
+
+                if(bullets[i].hits(asteroids[j])){ //if the asteroid is hitted
+
+
+                    ship.asteroidsHitted += 2*asteroids[j].r;
+                    ship.bulletsHits++;
+
+                    if(!asteroids[j].alreadySplitted){ //se è la prima volta che è stato creato questo asteroide
+                        var newAsteroids = asteroids[j].breakUp();
+                        newAsteroids[0].alreadySplitted = true;
+                        newAsteroids[1].alreadySplitted = true;
+                        asteroids.push(newAsteroids[0]);
+                        asteroids.push(newAsteroids[1]);
+                        ship.currentNumberOfAsteroids += 2;
+                    }
+
+                    if(asteroids[j].alreadySplitted){ //se è gia stato diviso: 20% di creare un nuovo asteroide
+                        var numeroRandom = random(0,100);
+                        if(numeroRandom > 100-10*level){ 
+                            asteroids.push(new Asteroid());
+                            ship.currentNumberOfAsteroids ++;
+                        }
+                    }
+                    else{ //altrimenti : 100% cra un nuovo asteroide
+                        asteroids.push(new Asteroid());
+                        ship.currentNumberOfAsteroids ++;
+                    }
+
+                    //every hit makes a coin
+                    for ( var z = 0; z<ship.moneyMultiplier; z++){
+                        var newMoney = new Money(asteroids[j]);
+                        moneys.push(newMoney);
+                    }
+                    
+                    //eliminate the bullet used
+                    if(ship.gunLVL == 1){
+                        console.log('splice');
+                        bullets.splice(i,1);
+                    }
+
+                    //eliminate the hitted asteroid
+                    asteroids.splice(j,1);
+                    ship.currentNumberOfAsteroids--;
+
+                    //for the collision problem of the for-cycle and the .splice
+                    break;
+                }
+
+            }
+        }
+
+    }
+
+    for (var i = bullets.length-1; i>=0; i--){
+        //checks if a bullet hits the boss1
+        if(boss.hitted(bullets[i])){
+            boss.life -= 1;
+            bullets.splice(i,1);
+            ship.bulletsHits++;
+        }
+    }
+
+
+
+    //money cycle
+    for(var i = 0; i<moneys.length; i++){
+
+        //normal display of coins
+        moneys[i].render();
+        moneys[i].update();
+
+        //checks if the ship earn a coin
+        if(ship.earn(moneys[i])){
+            ship.coins+= 3*level;
+            ship.coins += random(0,3);
+            ship.coins = ship.coins*100;
+            ship.coins = floor(ship.coins);
+            ship.coins = ship.coins/100;
+            moneys.splice(i,1);
+        }
+
+    }
+
+
+
+
+    //ship display stuff
+    ship.update();
+    ship.render();
+    ship.displayLifes();
+    ship.displayHits();
+    ship.displayCoins();
+    ship.displayNumberOfAsteroids();
+    ship.displaySurvival();  
+    ship.shield();
+    ship.shieldCooldown();
+
+
+    //boss cycle
+    if (ship.asteroidsHitted >= boss.coming){
+        boss.update();
+        boss.render();
+        if(boss.dead && boss.killRoundDone && moneys.length == 0){
+            gameLevel = "Survival2";
+            upgrading = true;
+            restart = true;
+        }
+    }
+    if (boss.dead && !boss.killRoundDone){
+        boss.killRound();
+    }
+    
+    boss.comingBar();
+
+    boss.colorR = 255;  //???
+    boss.colorG = 255;
+    boss.colorB =  255;
+
+}
+
+
+
+
+
+
+
+
+
+//key pressing for survival mode
+//ship.right and ship.left are used to avoid the keypressing issue of p5.js
+function keySurvival(){
+    if (keyCode == 32){ // ' '
+        if(ship.coins>0){
+            console.log('shooting a bullet: \n');
+            console.log(bullets);
+            bullets.push(new Bullet(ship.position));
+            ship.coins--;
+            ship.bulletsShooted++;
+        }
+        else{
+            ship.coins= 0;
+        }
+    }
+    if (keyCode == 68){ // 'D'
+        ship.boosting(true, ship.movement);
+        ship.right=true; 
+    }
+    if (keyCode == 65){ // 'A'
+        ship.boosting(true, -ship.movement); 
+        ship.left=true; 
+    }
+    if ( keyCode == 83){ // 'S'
+        if(!ship.isTheShieldCoolingDown && !ship.shieldActive){
+            ship.shieldUsage1 = millis(); // preleva un campione di tempo
+            ship.shieldActive = true;
+        }
+    }
+}
+
+//key releasing for survival mode
+function keyreleaseSurvival() {
+    if (keyCode == 68){
+        ship.boosting(false, ship.movement);
+        ship.right=false;
+        if(ship.left){
+            ship.boosting(true, -ship.movement); 
+        }
+    }
+    if (keyCode == 65){
+        ship.boosting(false, -ship.movement); 
+        ship.left=false; 
+        if(ship.right){
+            ship.boosting(true, ship.movement);
+        }
+    }
+    if ( keyCode == 83){ // 'S'
+    }
+}

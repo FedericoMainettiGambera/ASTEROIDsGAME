@@ -1,0 +1,139 @@
+function Asteroid(position, r){
+
+    //general dimension of an asteroid
+    if(r){//if the function is called with the radius argument
+        this.r = r/2;
+    }
+    else{//if the function isn't called without the radius argument             ///////////////////////////////////
+        this.r = floor(random(40,50));                                          //TO ReDO for a responsive layout//
+    }                                                                           ///////////////////////////////////
+    
+    if(position){ //if the function is called with the position argument
+        this.position = position.copy();
+    }
+    else{ //if the function is called without the position argument
+        this.position = createVector(random((width-this.r*2)+this.r), (-1000+(random(100,1000))));
+    }
+
+    //is the asteroid been already splitted(/shooted)?
+    this.alreadySplitted=false;
+
+    //number of segments that make the asteroid
+    this.segments = floor(random(5,15));
+
+    //distance from the real circle border of the vertex of the asteroids
+    this.offset = [];
+    for ( var i = 0; i<this.segments; i++){
+        this.offset[i]= random(-this.r/2,this.r/2);
+    }
+
+    //falling velocity, vertical velocity
+    this.velocity = createVector(random(-1,1),floor(random(4,8)));
+    //the orizontal velocity is very slow, the break up asteroids has a major orizontal velocity and is setted 
+    //in the .breakUo() method
+
+    //function for when a bullet hit an asteroid
+    this.breakUp = function () {
+        
+        var newAsteroids = [];
+
+        newAsteroids[0] = new Asteroid(this.position, this.r);
+        newAsteroids[0].velocity.x = floor(random(-3,3)); //set orizontal velocity
+
+        newAsteroids[1] = new Asteroid(this.position, this.r);
+        newAsteroids[1].velocity.x = floor(random(-3,3)); //set orizontal velocity
+
+        return newAsteroids;
+    }
+
+    //update function
+    this.update = function (){
+        //vertical respawn
+        if (this.position.y > height){
+            this.position.y = (-1000+(random(100,1000)));
+        }
+        //orizontal respawn
+        if (this.position.x > width){
+            this.position.x = 0
+        }
+        if (this.position.x < 0){
+            this.position.x = width;
+        }
+
+        //vertical and orizontal movement
+        this.position.y += this.velocity.y;
+        this.position.x += this.velocity.x;
+    }
+
+    //render function
+    this.render = function (){
+        //fkn crazy
+        push();
+        translate(this.position.x, this.position.y);
+        noFill();
+        stroke(255);
+        beginShape();
+        for( var i = 0; i<this.segments; i++){
+            var angle = map (i,0,this.segments, 0, 360);
+            var x = (this.r+this.offset[i])*cos(angle);
+            var y = (this.r+this.offset[i])*sin(angle);
+            vertex (x, y);
+        }
+        endShape(CLOSE);
+        pop();
+    }
+
+}
+
+
+
+
+//construction function for asteroids that hitted the ship
+function CrushedAsteroid (asteroid) {
+    //basic properties
+    this.r = asteroid.r;
+    this.segments = asteroid.segments;
+    this.offset = asteroid.offset;
+    this.position= asteroid.position;
+    this.velocity = asteroid.velocity;
+
+    //i don't like this properties, i should delete them, not just make them invisible
+    this.visible = true;
+
+    /////////////////////////////////
+    //TO ReDO: i never delete them //
+    /////////////////////////////////
+
+    //update function
+    this.update = function (){
+        
+        if(this.visible){
+            if (this.position.y > height){
+                this.visible = false;
+            }
+            this.position.y += this.velocity.y;
+            this.position.x += this.velocity.x;
+        }
+    }
+
+    //render function
+    this.render = function (){
+        if(this.visible){
+            push();
+            translate(this.position.x, this.position.y);
+            noFill();
+            stroke(255, 100, 0);
+            strokeWeight(5);
+            beginShape();
+            for( var i = 0; i<this.segments; i++){
+                var angle = map (i,0,this.segments, 0, 360);
+                var x = (this.r+this.offset[i])*cos(angle);
+                var y = (this.r+this.offset[i])*sin(angle);
+                vertex (x, y);
+            }
+            endShape(CLOSE);
+            pop();
+        }
+    }
+
+}

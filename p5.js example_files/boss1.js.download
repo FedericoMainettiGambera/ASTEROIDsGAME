@@ -1,0 +1,149 @@
+function Boss () {
+
+    this.colorB = 255;
+    this.colorG = 255;
+    this.colorR = 255;
+
+    this.dead= false;
+
+    this.friction = 0.96;
+
+    this.position = createVector(width+50, -height);
+    
+    this.velocity = createVector(0,2);
+
+    this.totalLifes= 100;
+    this.life = this.totalLifes;
+    
+    this.accelleration = createVector(0,0);
+
+    this.r = dist(this.position.x, this.position.y, ship.position.x, ship.position.y)/7;
+
+    this.coming = ship.asteroidsHitted + 2000*level;
+    
+    this.hits= function(asteroid){
+        if(!this.dead){
+            var distance = dist (this.position.x, this.position.y, asteroid.position.x, asteroid.position.y);
+            if (distance < this.r-asteroid.r) {
+                this.colorR = 183;
+                this.colorG = 0;
+                this.colorB =  255;
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+
+    this.hitted = function(bullet){
+        if(!this.dead){
+            var distance = dist (this.position.x, this.position.y, bullet.position.x, bullet.position.y);
+            if(distance < this.r/2){
+                this.colorR = 255;
+                this.colorG = 0;
+                this.colorB =  0;
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+    }
+
+    this.update = function (){
+        if(!this.dead){
+            if(this.position.x < ship.position.x){
+                this.accelleration.x = 0.07;
+            }
+            if(this.position.x > ship.position.x){
+                this.accelleration.x = -0.07;
+            }
+            this.velocity.x += this.accelleration.x;
+            this.velocity.x = this.velocity.x * this.friction;
+            this.position.x += this.velocity.x;
+            if(this.position.x + this.r/2 > width){
+                this.position.x = width -this.r/2;
+                this.accelleration.x = 0;
+                this.velocity.x = 0;
+            }
+            if(this.position.x - this.r/2 < 0){
+                this.position.x = 0 +this.r/2;
+                this.accelleration.x = 0;
+                this.velocity.x = 0;
+            }
+
+            if(this.position.y > height/3){
+                this.position.y = height/3;
+                this.velocity.y = 0;
+            }
+            else { 
+                this.position.y += this.velocity.y;
+            }
+
+            if(this.life <= 0){
+                this.life=0;
+                this.r-= 2;
+            }
+
+            if(this.r<0){
+                this.dead = true;
+            }
+
+            if(this.life > 0){
+                this.r = (300*width)/dist(this.position.x, this.position.y, ship.position.x, ship.position.y)/7;
+            }
+        }
+    }
+
+    this.comingBar = function (){
+        push();
+        strokeWeight(10);
+        stroke(255,0,0);
+        var point = map(ship.asteroidsHitted, this.coming-(2000*level), this.coming, 0, width);
+        line(0, height, point, height);
+        if (point >= width){
+            textAlign (CENTER, CENTER);
+            noStroke();
+            fill(255,0,0);
+            textStyle(BOLD);
+            textFont('monospace', width/30);
+            text('BOSS', width/2, height*2/13);
+        }
+        pop();
+    }
+
+    this.render = function (){
+        if(!this.dead){
+            push();
+            noFill();
+            stroke(this.colorR,this.colorG,this.colorB);
+            strokeWeight(10);
+            ellipse(this.position.x, this.position.y, this.r);
+            textAlign (CENTER, CENTER);
+            strokeWeight(1);
+            textFont('monospace', this.r/5);
+            text(this.life , this.position.x, this.position.y);
+            translate(this.position.x, this.position.y);
+            strokeWeight(2);
+            stroke(0,255,0);
+            var point = map(this.life, 0, this.totalLifes, -this.r/2, this.r/2);
+            line(-this.r/2, -this.r/2 - this.r/6, point, -this.r/2 - this.r/6);
+            pop();
+        }
+    }
+
+    this.killRoundDone = false;
+    this.killRound = function () {
+
+        for(var j = asteroids.length-1; j>=0; j--){
+            var newMoney = new Money(asteroids[j]);
+            moneys.push(newMoney);
+            
+            asteroids.splice(j,1);
+            ship.currentNumberOfAsteroids--;
+        }
+
+        this.killRoundDone = true;
+    }
+}

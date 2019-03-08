@@ -1,0 +1,52 @@
+function Bullet (shipPosition) {
+    
+    //bullet position
+    this.position = createVector (shipPosition.x, shipPosition.y);
+
+    //bullet vertical velocity
+    this.velocity = createVector(0, 10);
+    //if you want orizontal velocity you have to add it outside from this object
+
+    //checks if the bullet hit an asteroid
+    this.hits = function (asteroid) {
+        var distance = dist(this.position.x, this.position.y, asteroid.position.x, asteroid.position.y)
+        if(distance<asteroid.r){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    //checks if the bullet is offScreen
+    this.offScreen = function(){
+        if(this.position.x > width){
+            return true;
+        }
+        else if (this.position.x < 0) {
+            return true;
+        }
+        if( this.position.y > height){
+            return true;
+        }
+        else if (this.position.y < 0){
+            return true;
+        }
+        return false;
+    }
+
+    //update function
+    this.update = function () {
+        this.position.y -= this.velocity.y;
+        this.position.x += this.velocity.x;
+    }
+
+    //render function
+    this.render = function () {
+        push();
+        stroke(255);
+        strokeWeight(8);
+        point(this.position.x, this.position.y);
+        pop();
+    }
+}

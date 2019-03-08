@@ -1,0 +1,57 @@
+function Money (asteroid) {
+
+    //money dimension      
+                                                    
+    this.r= floor(random(width/200, width/100));
+
+    //money position is the same of the asteroid
+    this.position = createVector(asteroid.position.x, asteroid.position.y);
+
+    //money vertical velocity
+    this.velocity = createVector(0, floor(random(3,5)));
+    //orizontal velocity is added in the update function (it depends on the attraction that depends on the distance from the ship)
+    
+    //money attraction to the ship (orizontal movement)
+    this.attraction = 0;
+
+    //update function
+    this.update = function () {
+
+        //attraction to the ship
+        this.attraction = this.position.y/height;
+
+        //changing the orizontal movement (speed)
+        if(this.position.x < ship.position.x){
+            this.velocity.x = 2*this.attraction;
+        }
+        if(this.position.x > ship.position.x){
+            this.velocity.x = -2*this.attraction;
+        }
+
+        //vertical and orizontal respawn
+        if(this.position.y>height){
+            this.position.y = 0;
+        }
+        if (this.position.x > width){
+            this.position.x = 0;
+        }
+        if(this.position.x < 0) {
+            this.position.x = width;
+        }
+
+        //vertical and orizontal movement
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y
+    }
+
+    //render function
+    this.render = function () {
+        push();
+        translate(this.position.x, this.position.y);
+        noFill();
+        stroke(200,200,0);
+        strokeWeight(2);
+        ellipse(0,0, this.r);
+        pop();
+    }
+}

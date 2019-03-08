@@ -1,0 +1,240 @@
+function Ship() {
+
+    //responsive ship dimensions
+    this.dimensionX = height/30;
+    this.dimensionY = width/30;
+
+    //ship position
+    this.position = createVector (width/2, (height - 2*this.dimensionY));
+
+    //ship velocity and accelleration and friction
+    this.velocity = 0;
+    this.accelleration = 0;
+    this.friction = 0.95;
+    this.movement = 0.3;
+
+    //ship's movement regolation for keypressing holding issue
+    this.right=false;
+    this.left=false;
+
+    //upgrades
+    this.moneyMultiplier = 1;
+    this.gunLVL = 1;
+    this.lifeLVL = 1;
+    this.movementLVL = 1;
+    this.shieldLVL = 1;
+
+    this.bulletsShooted = 0;
+    this.bulletsHits = 0;
+
+    //number of hitted asteroids
+    this.asteroidsHitted = 0;
+    //display the number of hitted asteroids in the corner
+    this.displayHits = function () {
+        push();
+        fill(255);
+        textFont('monospace', width/80);
+        text('SCORE: ' + this.asteroidsHitted, width/24,height*1/24);
+        pop();
+    }
+
+    //ship coins
+    this.coins = 10;
+    //display the number of earned coins in the corner
+    this.displayCoins = function () {
+        push();
+        fill(255);
+        textFont('monospace', width/80);
+        text('ENERGY: ' + this.coins, width/24, height*2/24);
+        pop();
+    }
+
+    //current number of asteroids in play
+    this.currentNumberOfAsteroids = 0;
+    //display the number of asteroids currently to be defeated
+    this.displayNumberOfAsteroids = function() {
+        push();
+        fill(255);
+        textFont('monospace', width/80);
+        text('ASTEROIDS: ' + this.currentNumberOfAsteroids, width/24, height*3/24);
+        pop();
+    }
+
+    //display the text "level n" on top
+    this.displaySurvival = function (currentNumberOfAsteroids) {
+        push();
+        fill(255);
+        textAlign(CENTER, CENTER);
+        textFont('monospace', width/50);
+        text('- LEVEL ' + level + ' -', width/2, height/12);
+        pop();
+    }
+
+    //ship lifes
+    this.lifes = 5;
+    this.startingLifes = 5;
+    //display the number of remaining lifes
+    this.displayLifes = function(){
+        for (var i = 0; i<ship.lifes; i++){ 
+            push();
+            noFill();
+            stroke(100, 255, 0);
+            strokeWeight(5);
+            rect( width - width*(i+1)/40, height*1/24, ship.dimensionX/2, ship.dimensionY/2);
+            pop();
+        }
+    }
+
+    //ship's shield for defense using key S
+    this.millisPassed = 0;
+    this.shieldActive = false;
+    this.shieldUsage1 = 0;
+    this.shieldUsage2 = 0;
+    this.shieldTime = 5000;
+    //function that makes the shield ; use the var millisPassed to display effects;
+    this.shield = function () {
+        if(this.shieldActive){ //if the shield is active
+            this.shieldUsage2 = millis();
+            this.millisPassed = this.shieldUsage2 - this.shieldUsage1;
+            if(this.millisPassed > this.shieldTime){
+                this.shieldActive = false;
+                this.isTheShieldCoolingDown=true;
+                this.shieldCooldown1 = millis();
+            }
+        }
+    }
+    //coolDown for the shied
+    this.isTheShieldCoolingDown = false;
+    this.shieldCooldown1 = 0;
+    this.shieldCooldown2 = 0;
+    this.shieldCooldownTime = 5000;
+    //shield cool down before reuse ; use the var millisPassed to display effects;
+    this.shieldCooldown = function(){
+        if(this.isTheShieldCoolingDown){
+            this.shieldCooldown2= millis();
+            this.millisPassed = this.shieldCooldown2 - this.shieldCooldown1;
+            if(this.millisPassed > this.shieldCooldownTime){
+                this.isTheShieldCoolingDown= false;
+            }
+        }
+    }
+
+    //ship's bomb for atack using D key
+
+    //hit function
+    this.hits = function(asteroid) {
+        if(!this.shieldActive){ //if the shied is active, you are immortal.
+            var distance = dist (this.position.x, this.position.y, asteroid.position.x, asteroid.position.y);
+            if (distance < asteroid.r+this.dimensionX/2) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+
+    //earn money function
+    this.earn = function (money) {
+        var distance = dist (this.position.x, this.position.y, money.position.x, money.position.y);
+        if (distance < money.r+this.dimensionY/2) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    //TO ReDO
+    this.isBoosting = false;
+    this.boosting = function(b, accelleration){
+        this.isBoosting=b;
+        this.accelleration = accelleration;
+    }
+    this.boost = function(){
+        if (this.isBoosting){
+            this.velocity = this.velocity + this.accelleration;
+        }
+    }
+
+    this.slowAsteroid = function(asteroid) {
+        var distance = dist(this.position.x, this.position.y, asteroid.position.x, asteroid.position.y)
+        if( distance < this.dimensionY*3/2*this.movementLVL+asteroid.r){
+            asteroid.position.y -= 2;
+        }
+    }
+
+    //update function
+    this.update = function() {
+
+        //orizontal movement
+        this.position.x += this.velocity;
+
+        //creating border for the ship
+        if(this.position.x > width-this.dimensionX/2){
+            this.position.x = width-this.dimensionX/2;
+        }
+        if(this.position.x < 0+this.dimensionX/2){
+            this.position.x = 0+this.dimensionX/2;
+        }
+
+        //friction
+        this.velocity = this.velocity*this.friction;
+        
+        //TO ReDO
+        this.boost();
+    }
+
+    //render function
+    this.render = function() {
+        push();
+        translate(this.position.x, this.position.y);
+        if(this.shieldActive){
+            //start shield bar
+            fill(0,255,255);
+            rect(this.dimensionX, 0, this.dimensionX/4, this.dimensionY-(this.millisPassed/this.shieldTime)*this.dimensionY);
+            noFill();
+            stroke(0,255,255);
+            ellipse(0, 0, this.dimensionY*3);
+            stroke(255);
+            strokeWeight(1);
+            rect(this.dimensionX, 0, this.dimensionX/4, this.dimensionY);
+            //end shield bar
+            strokeWeight(5);
+            rect(0, 0, this.dimensionX, this.dimensionY);
+        }
+        else if(this.isTheShieldCoolingDown){
+            //start shield bar
+            fill(255, 255, 0);
+            rect(this.dimensionX, 0, this.dimensionX/4, (this.millisPassed/this.shieldCooldownTime)*this.dimensionY);
+            noFill();
+            stroke(255);
+            strokeWeight(1);
+            rect(this.dimensionX, 0, this.dimensionX/4, this.dimensionY);
+            //end shield bar
+            strokeWeight(5);
+            rect(0, 0, this.dimensionX, this.dimensionY);
+        }
+        else{
+            //start shield bar
+            fill(0, 255, 0);
+            stroke(255);
+            strokeWeight(1);
+            rect(this.dimensionX, 0, this.dimensionX/4, this.dimensionY)
+            //end shield bar
+            noFill();
+            strokeWeight(5);
+            rect(0, 0, this.dimensionX, this.dimensionY);
+        }
+        pop();
+        if(this.movementLVL > 1){
+            push();
+            noFill();
+            strokeWeight(1);
+            stroke(255,253,0);
+            ellipse(this.position.x, this.position.y, this.dimensionY*3*this.movementLVL);
+            pop();
+        }
+    }
+
+}

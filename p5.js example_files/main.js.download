@@ -1,0 +1,189 @@
+
+//--ASTEROIDS--
+
+var space = [];
+var ship;
+var asteroids = [];
+var crushedAsteroids = [];
+//var currentNumberOfAsteroids = 0; è dentro a ship.currentNumberOFAsteroids
+var bullets = [];
+var moneys = [];
+var score = 0;
+
+//momentary
+var boss = 0;
+
+//Initial animation
+var BooleanInitialAnimation = false;
+
+//Game Menu
+var BooleanGameMenu = false;
+
+
+//start Game
+var BooleanPlaying = true;
+
+//Game Mode
+var gameLevel = "Survival1"; 
+var upgrading = false;
+var select = " ";
+var restart = false;
+var level = 1;
+
+
+//Dead screen
+var BooleanDead = false;
+
+
+
+function setup() {
+    var cnv = createCanvas(windowWidth, windowHeight);
+    cnv.canvas.style.display = "block";
+    
+    frameRate(70);
+
+    angleMode(DEGREES); 
+    rectMode(CENTER);
+
+    //create the background
+    for ( var i = 0; i<30; i++){
+        space.push(new spaceBackground());
+    }
+    //create the character.
+    ship = new Ship();
+    boss = new Boss();
+}
+
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
+}
+
+
+
+
+
+function draw() {
+
+    background (0); 
+
+    if(BooleanInitialAnimation){
+        initialAnimation();
+    }
+
+    if(BooleanGameMenu){
+        gameMenu();
+    }
+
+    if(BooleanPlaying){
+        if(!BooleanDead){
+            if(gameLevel == "Survival1"){
+                showFrameRate(); //optional
+                survival();
+            }
+            if(gameLevel == "Survival2"){
+                survival2();
+            }
+
+        }
+
+        else {
+            if(gameLevel == "Survival1"){
+                survivalDead();
+            }
+            if(gameLevel == "Survival2"){
+            }
+
+        }
+
+    }
+
+}
+
+
+
+
+
+function mouseMoved() {
+    if(BooleanPlaying){
+
+        if(!BooleanDead){
+
+            if(gameLevel == "Survival2" && upgrading == true){
+                muoseOverSurvival2();
+            }
+        }
+    }
+}
+
+function mousePressed() {
+    if(BooleanPlaying){
+
+        if(!BooleanDead){
+
+            if(gameLevel == "Survival2" && upgrading == true){
+                muosePressSurvival2();
+            }
+        }
+    }
+}
+
+
+function keyPressed(){
+
+    //key pressing for Survival mode:
+    if(BooleanPlaying){
+        if(!BooleanDead){
+            if(gameLevel == "Survival1"){
+                keySurvival();
+            }
+            if(gameLevel == "Survival2"){
+
+            }
+        }
+    }
+    if(BooleanPlaying){
+        if(BooleanDead){
+            if(gameLevel == "Survival1"){
+                keyDeadSurvival();
+            }
+            if(gameLevel == "Survival2"){
+                
+            }
+        }
+    }
+
+}
+
+function keyReleased() {
+  
+    //key releasing for Survival mode:
+    if(BooleanPlaying){
+        if(!BooleanDead){
+            if(gameLevel == "Survival1"){
+                keyreleaseSurvival();
+            }
+            if(gameLevel == "Survival2"){
+                
+            }
+        }
+    }
+}
+
+var numberofframe = 0;
+var framerate = 0;
+var framerateavg= 0;
+var printframerateavg
+function showFrameRate () {
+    framerate+=frameRate();
+    framerateavg=framerate/numberofframe;
+    if(numberofframe%10==0){
+        printframerateavg = framerateavg
+    }
+    push();
+    fill(255);
+    textFont('monospace', width/80);
+    text('frameRateAVG: ' + printframerateavg, width/24, height*4/24);
+    pop();
+
+    numberofframe++;
+}
