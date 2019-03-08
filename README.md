@@ -4,7 +4,7 @@ Simple game inspired by Asteroids, written in JavaScript with the help of P5.js 
 
 -- I made this game just for fun and to try some JS and P5.js skills i was learning, also it is not ended (e.g. no ship images, no menu, no tutorial etc..) --
 
-You can actually try it at http://federicomainettigambera.altervista.org/ASTEROIDS
+You can actually try it at http://federicomainettigambera.altervista.org/ASTEROIDS/p5.js_example.html
 
 BASIC TUTORIAL:
 
